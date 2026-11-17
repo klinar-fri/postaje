@@ -1,3 +1,9 @@
+// Paket vsebuje funckije za delo z merilnimi postajami
+// 
+// Omogoča dodajanje novih postaj in meritev. Glej funkciji DodajPostajo in DodajMeritev
+// Omogoča izpis vseh meritev v dani postaji. Glej funkcijo IzpisMeritev.
+// Omogoča izpis poročila za celoten seznam. Poročilo vsebuje minTemp, maxTemp, avgTemp in real-feel. Glej funkcijo IzpisPorocila
+// 
 package vreme 
 
 import "fmt"
@@ -14,10 +20,12 @@ type Stikala struct {
 	StMeritev int
 }
 
+// DodajPostajo doda novo postajo v seznam.
 func DodajPostajo(oznaka string, ime string, kraj string, postaje map[string]Postaja) {
 	postaje[oznaka] = Postaja{ime: ime, kraj: kraj} 
 }
 
+// DodajMeritev doda novo meritev v tabelo mertiev dane postaje.
 func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64, s Stikala){
 	e, ok := postaje[oznaka] 
 	if ok {
@@ -34,7 +42,7 @@ func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64
 	}
 }
 
-// skrita -> z malo
+// statistika izračuna statistiko meritev na posamezni postaji. Vrne minTemp, maxTemp, avgTemp in ok (error value)
 func statistika(postaje map[string]Postaja, oznaka string, s Stikala) (najnizja, najvisja, povprecna float64, ok bool){
 	var avg float64 = 0
 	var max float64 = -1000 
@@ -63,7 +71,7 @@ func statistika(postaje map[string]Postaja, oznaka string, s Stikala) (najnizja,
 	}
 }
 
-
+// IzpisMeritev izpiše vse meritve za vse postaje v seznamu.
 func IzpisMeritev(postaje map[string]Postaja){
 	fmt.Println("-----MERITVE-----:")
 	for i, v := range postaje {
@@ -71,6 +79,7 @@ func IzpisMeritev(postaje map[string]Postaja){
 	}
 }
 
+// IzpisPorocila izpiše poročilo o vseh posatajah v seznamu. Porocilo vsebuje imePostaje, minTemp, maxTemp, avgTemp in real-feel: (Vroče, Toplo, Hladno, Mrzlo)
 func IzpisPorocila(postaje map[string]Postaja, s Stikala){
 	fmt.Println("-----POROCILO-----:")
 	for i, v := range postaje {
