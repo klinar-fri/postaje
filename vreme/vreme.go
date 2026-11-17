@@ -8,20 +8,26 @@ type Postaja struct {
 	meritve []float64
 }
 
-func DodajPostajo(oznaka string, ime string, kraj string, meritve []float64, postaje map[string]Postaja) {
-	postaje[oznaka] = Postaja{ime: ime, kraj: kraj, meritve: meritve} 
+type Stikala struct {
+	MinTemp float64
+	MaxTemp float64
+	StMeritev int
 }
 
-func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64){
+func DodajPostajo(oznaka string, ime string, kraj string, postaje map[string]Postaja) {
+	postaje[oznaka] = Postaja{ime: ime, kraj: kraj} 
+}
+
+func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64, s Stikala){
 	e, ok := postaje[oznaka] 
 	if ok {
-		if temperatura < 50 && temperatura > -50{
+		if temperatura < s.MaxTemp && temperatura > s.MinTemp{
 			// fmt.Printf("Dolzina :%d, Kapaciteta :%d | %v\n", len(e.meritve), cap(e.meritve), e.meritve)
 			e.meritve = append(e.meritve, temperatura)
 			// fmt.Printf("Dolzina :%d, Kapaciteta :%d | %v\n", len(e.meritve), cap(e.meritve), e.meritve)
 			postaje[oznaka] = e
 		}else{
-			fmt.Println("Meritev ni veljavna!")
+			fmt.Printf("Meritev ni veljavna! -> Temperatura je %.1f, vendar mora biti med %.1f °C in %.1f °C\n", temperatura, s.MinTemp, s.MaxTemp)
 		}
 	} else {
 		fmt.Println("Ta postaja (ključ) ne obstaja!")
@@ -29,14 +35,14 @@ func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64
 }
 
 // skrita -> z malo
-func statistika(postaje map[string]Postaja, oznaka string) (najnizja, najvisja, povprecna float64, ok bool){
+func statistika(postaje map[string]Postaja, oznaka string, s Stikala) (najnizja, najvisja, povprecna float64, ok bool){
 	var avg float64 = 0
-	var max float64 = 0
-	var min float64 = 1000000000
+	var max float64 = -1000 
+	var min float64 = 1000
 	e, ok := postaje[oznaka]
 
 	if ok {
-		if len(e.meritve) < 3 {
+		if len(e.meritve) < s.StMeritev {
 			ok = false
 			return 
 		}else{
@@ -44,7 +50,7 @@ func statistika(postaje map[string]Postaja, oznaka string) (najnizja, najvisja, 
 				if e.meritve[i] > max {
 					max = e.meritve[i]
 				}
-				if e.meritve[i] < min {
+				if e.meritve[i] < min{
 					min = e.meritve[i]
 				}
 				avg += e.meritve[i]
@@ -65,10 +71,10 @@ func IzpisMeritev(postaje map[string]Postaja){
 	}
 }
 
-func IzpisPorocila(postaje map[string]Postaja){
+func IzpisPorocila(postaje map[string]Postaja, s Stikala){
 	fmt.Println("-----POROCILO-----:")
 	for i, v := range postaje {
-		min, max, avg, ok := statistika(postaje, i)
+		min, max, avg, ok := statistika(postaje, i, s)
 		var tempOpis string = ""
 		if ok {
 			switch {
@@ -83,7 +89,7 @@ func IzpisPorocila(postaje map[string]Postaja){
 			}
 			fmt.Printf("%s: min %.1f °C, max %.1f °C, povprečje %.2f °C -> %s\n", v.ime, min, max, avg, tempOpis)
 		} else {
-			fmt.Printf("%s: Premalo meritev!\n", v.ime)
+			fmt.Printf("%s: Imamo premalo meritev, potrebnih je vsaj %d!\n", v.ime, s.StMeritev)
 		}
 	}
 }
