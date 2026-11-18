@@ -14,11 +14,12 @@ type Postaja struct {
 	meritve []float64
 }
 
-type Stikala struct {
-	MinTemp float64
-	MaxTemp float64
-	StMeritev int
-}
+// MinStMeritev ima privzeto vrednost 3, lahko jo nastavljamo iz drugih programov, ki uporabljajo paket vreme. 
+var MinStMeritev int = 3
+// MinTemp je minimalna temperatura, ki jo še lahko izmerimo. Privzeta vrednost je -50.0.
+var MinTemp float64 = -50.0
+// MaxTemp je maksimalna temperatura, ki jo še lahko izmerimo. Privzeta vrednost je 50.0.
+var MaxTemp float64 = 50.0
 
 // DodajPostajo doda novo postajo v seznam.
 func DodajPostajo(oznaka string, ime string, kraj string, postaje map[string]Postaja) {
@@ -26,16 +27,16 @@ func DodajPostajo(oznaka string, ime string, kraj string, postaje map[string]Pos
 }
 
 // DodajMeritev doda novo meritev v tabelo mertiev dane postaje.
-func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64, s Stikala){
+func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64){
 	e, ok := postaje[oznaka] 
 	if ok {
-		if temperatura < s.MaxTemp && temperatura > s.MinTemp{
+		if temperatura < MaxTemp && temperatura > MinTemp{
 			// fmt.Printf("Dolzina :%d, Kapaciteta :%d | %v\n", len(e.meritve), cap(e.meritve), e.meritve)
 			e.meritve = append(e.meritve, temperatura)
 			// fmt.Printf("Dolzina :%d, Kapaciteta :%d | %v\n", len(e.meritve), cap(e.meritve), e.meritve)
 			postaje[oznaka] = e
 		}else{
-			fmt.Printf("Meritev ni veljavna! -> Temperatura je %.1f, vendar mora biti med %.1f °C in %.1f °C\n", temperatura, s.MinTemp, s.MaxTemp)
+			fmt.Printf("Meritev ni veljavna!")
 		}
 	} else {
 		fmt.Println("Ta postaja (ključ) ne obstaja!")
@@ -43,14 +44,14 @@ func DodajMeritev(postaje map[string]Postaja, oznaka string, temperatura float64
 }
 
 // statistika izračuna statistiko meritev na posamezni postaji. Vrne minTemp, maxTemp, avgTemp in ok (error value)
-func statistika(postaje map[string]Postaja, oznaka string, s Stikala) (najnizja, najvisja, povprecna float64, ok bool){
+func statistika(postaje map[string]Postaja, oznaka string) (najnizja, najvisja, povprecna float64, ok bool){
 	var avg float64 = 0
 	var max float64 = -1000 
 	var min float64 = 1000
 	e, ok := postaje[oznaka]
 
 	if ok {
-		if len(e.meritve) < s.StMeritev {
+		if len(e.meritve) < MinStMeritev{
 			ok = false
 			return 
 		}else{
@@ -79,11 +80,11 @@ func IzpisMeritev(postaje map[string]Postaja){
 	}
 }
 
-// IzpisPorocila izpiše poročilo o vseh posatajah v seznamu. Porocilo vsebuje imePostaje, minTemp, maxTemp, avgTemp in real-feel: (Vroče, Toplo, Hladno, Mrzlo)
-func IzpisPorocila(postaje map[string]Postaja, s Stikala){
+// IzpisPorocila izpiše poročilo o vseh posatajah v seznamu. Porocilo vsebuje imePostaje, minTemp, maxTemp, avgTemp in real-feel: (Vroce, Toplo, Hladno, Mrzlo)
+func IzpisPorocila(postaje map[string]Postaja){
 	fmt.Println("-----POROCILO-----:")
 	for i, v := range postaje {
-		min, max, avg, ok := statistika(postaje, i, s)
+		min, max, avg, ok := statistika(postaje, i)
 		var tempOpis string = ""
 		if ok {
 			switch {
@@ -98,7 +99,7 @@ func IzpisPorocila(postaje map[string]Postaja, s Stikala){
 			}
 			fmt.Printf("%s: min %.1f °C, max %.1f °C, povprečje %.2f °C -> %s\n", v.ime, min, max, avg, tempOpis)
 		} else {
-			fmt.Printf("%s: Imamo premalo meritev, potrebnih je vsaj %d!\n", v.ime, s.StMeritev)
+			fmt.Printf("%s: Imamo premalo meritev!\n", v.ime)
 		}
 	}
 }
