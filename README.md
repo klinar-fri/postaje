@@ -15,6 +15,12 @@ Paket vreme vsebuje funckije za delo z merilnimi postajami
     var slovar_postaj = make(map[string]vreme.Postaja)
     vreme.DodajPostajo("LJ01", "Ljubljana FRI", "Ljubljana", []float64{22.4, 21.4, 18.5, 12.9, 10.7}, slovar_postaj)
 
-    // Dodamo lahko tudi posamezne meritve
-    vreme.DodajMeritev(slovar_postaj, oznakaPostaje, 10)
+    // Dodamo lahko tudi posamezne meritve posamezni postaji
+    vreme.DodajMeritev(slovar_postaj, "LJ01", 10)
+
+    // Izpiši meritve
+	vreme.IzpisMeritev(slovar_postaj)
+
+    // Izpiši Poročilo
+	vreme.IzpisPorocila(slovar_postaj)
     ```
